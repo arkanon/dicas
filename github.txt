@@ -1,7 +1,7 @@
 # vim: ft=sh
 
 # Arkanon <arkanon@lsd.org.br>
-# 2015/07/03 (Sex) 11:07:26 BRS
+# 2015/07/03 (Sex) 11:12:18 BRS
 # 2015/07/02 (Qui) 10:13:25 BRT
 # 2015/06/10 (Qua) 09:32:39 BRT
 #
@@ -40,5 +40,13 @@
   git commit -m "Submissão inicial"
   git remote add origin "https://github.com/$user/$repo.git"
   git push -u origin master
+
+# se pedir senha apesar da chave sem passphrase
+  # vi .git/config
+  #    usar
+  #      url = ssh://git@github.com/<USER>/<REPO>.git
+  #    e não
+  #      url = https://github.com/username/repo.git
+  #      url = git://github.com/username/repo.git
 
 # EOF
