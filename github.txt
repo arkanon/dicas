@@ -1,0 +1,44 @@
+# vim: ft=sh
+
+# Arkanon <arkanon@lsd.org.br>
+# 2015/07/03 (Sex) 11:07:26 BRS
+# 2015/07/02 (Qui) 10:13:25 BRT
+# 2015/06/10 (Qua) 09:32:39 BRT
+#
+# <http://codexico.com.br/blog/linux/tutorial-simples-como-usar-o-git-e-o-github>
+
+    user=arkanon
+    name=Arkanon
+  domain=lsd.org.br
+
+# criar chave ssh
+  echo y | ssh-keygen -t dsa -f ~/.ssh/i-git -C $user@github.com -N ''
+  echo "IdentityFile ~/.ssh/i-git" >> ~/.ssh/config
+  sudo apt-get install git xclip
+  cat ~/.ssh/i-git.pub | xclip -sel clip # copia para a àrea de transferência
+  # colar em <https://github.com/settings/ssh>
+  ssh git@github.com # testa
+
+# configurar git
+  git config --global user.name    $name
+  git config --global user.email   $user@$domain
+  git config --global push.default simple
+
+# trabalhar
+  mkdir -p /fs/src/git
+  cd       /fs/src/git
+
+# criar repositório no github
+  repo=dicas
+  curl -u "$user"        https://api.github.com/user/repos -d '{"name":"'$repo'"}'
+# curl -u "$user:$token" https://api.github.com/user/repos -d '{"name":"'$repo'"}'
+  mkdir -p $repo
+  cd $repo
+  echo "# $repo" >| README.md
+  git init
+  git add README.md
+  git commit -m "Submissão inicial"
+  git remote add origin "https://github.com/$user/$repo.git"
+  git push -u origin master
+
+# EOF
