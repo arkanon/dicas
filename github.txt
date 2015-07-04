@@ -1,52 +1,137 @@
 #!/bin/bash
 
 # Arkanon <arkanon@lsd.org.br>
+# 2015/07/03 (Sex) 22:49:34 BRS
 # 2015/07/03 (Sex) 11:12:18 BRS
+# 2015/07/03 (Sex) 02:25:59 BRS
 # 2015/07/02 (Qui) 10:13:25 BRT
+# 2015/06/30 (Ter) 00:37:51 BRS
 # 2015/06/10 (Qua) 09:32:39 BRT
 #
 # <http://codexico.com.br/blog/linux/tutorial-simples-como-usar-o-git-e-o-github>
+# Markdown, para criaçao do README.md <http://daringfireball.net/projects/markdown>
+
+  git --help
+
+
 
     user=arkanon
     name=Arkanon
   domain=lsd.org.br
 
-# criar chave ssh
+
+
+# CONFIGURAR
+
+
+
+# chave SSH
+
+  # chave sem passphrase para interação com o servidor sem necessidade de entrada de senha em cada ação
   echo y | ssh-keygen -t dsa -f ~/.ssh/i-git -C $user@github.com -N ''
   echo "IdentityFile ~/.ssh/i-git" >> ~/.ssh/config
   sudo apt-get install git xclip
-  cat ~/.ssh/i-git.pub | xclip -sel clip # copia para a àrea de transferência
-  # colar em <https://github.com/settings/ssh>
+  cat ~/.ssh/i-git.pub | xclip -sel clip # copia chave pública para área de transferência
+  # colar em <https://github.com/settings/ssh> com título idêntico ao comentário da chave SSH
   ssh git@github.com # testa
 
-# configurar git
+  # chave com passphrase mas sem entrada manual em cada operação com agente ssh
+  # <https://developer.github.com/guides/using-ssh-agent-forwarding/>
+
+
+# token de autenticaçao OAuth v2
+  # <https://developer.github.com/v3/auth/#basic-authentication>
+  # <https://github.com/settings/tokens/new>
+  # vi ~/.gittoken
+  # chmod 600 ~/.gittoken
+  token=$(cat ~/.gittoken)
+
+
+
+# git
   git config --global user.name    $name
   git config --global user.email   $user@$domain
-  git config --global push.default simple
+  git config --global push.default simple # remove mensagens de mudança de funcionamento em cada push
 
-# trabalhar
+
+
+# TRABALHAR
+
+
+
   mkdir -p /fs/src/git
   cd       /fs/src/git
 
+
+
+# baixar cópia pela primeira vez
+
+  git clone https://github.com/arkanon/svl.git .
+
+
+
 # criar repositório no github
-  repo=dicas
-  curl -u "$user"        https://api.github.com/user/repos -d '{"name":"'$repo'"}'
-# curl -u "$user:$token" https://api.github.com/user/repos -d '{"name":"'$repo'"}'
+
+  # <https://developer.github.com/v3/repos/#create>
+  repo="etc"
+  desc="Arquivos de configuração."
+   url="https://api.github.com/user/repos"
+  data="{ \"name\":\"$repo\" , \"description\":\"$desc\" }"
+
   mkdir -p $repo
   cd $repo
   echo "# $repo" >| README.md
+
+  # a curl tutorial using GitHub's API <https://gist.github.com/caspyin/2288960>
+  curl -u "$user"         $url -d "$data" # entrada interativa da senha
+  curl -u "$user:$passwd" $url -d "$data" # citação da senha no comando
+  curl -u "$user:$token"  $url -d "$data" # usando token de autebticaçao
+
   git init
   git add README.md
   git commit -m "Submissão inicial"
-  git remote add origin "https://github.com/$user/$repo.git"
+  git remote add origin ssh://git@github.com/$user/$repo.git
   git push -u origin master
 
 # se pedir senha apesar da chave sem passphrase
-  # vi .git/config
-  #    usar
-  #      url = ssh://git@github.com/<USER>/<REPO>.git
-  #    e não
-  #      url = https://github.com/username/repo.git
-  #      url = git://github.com/username/repo.git
+  # cat .git/config
+  #     usar
+  #       url = ssh://git@github.com/<USER>/<REPO>.git
+  #     e não
+  #       url = https://github.com/username/repo.git
+  #       url = git://github.com/username/repo.git
+
+
+
+# sincronizar o repositório local desatualizado em relação ao >>remoto mais atualizado<<
+
+  git pull
+
+
+
+# sincronizar o repositório remoto desatualizado em relação ao >>local mais atualizado<<
+
+  # todo o repositório
+  git add .
+  git commit -m "Modificações realizadas"
+
+  # apenas modificações pontuais
+  git add make
+  git rm make-p1
+  git rm make-p2
+  git commit -m "make-p1 e make-p2 fundidos em make" make
+# git checkout
+
+  git push
+
+
+
+# renomear o repositório
+  new="doc"
+  git remote set-url origin ssh://git@github.com/$user/$new.git
+  cat .git/config
+  cat .git/description
+
+
 
 # EOF
