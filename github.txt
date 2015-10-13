@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Arkanon <arkanon@lsd.org.br>
+# 2015/10/13 (Tue) 03:37:33 BRT
+# 2015/09/29 (Ter) 02:32:32 BRT
 # 2015/09/13 (Dom) 02:33:40 BRT
 # 2015/07/06 (Seg) 08:44:29 BRS
 # 2015/07/05 (Dom) 22:09:50 BRS
@@ -37,6 +39,8 @@
 #  _11_  renomear o repositório
 #  _12_  acrescentar ou alterar atributos de um repositório
 #  _13_  deixar um diretório acessível automaticamente pelo site
+#  _14_  ver o comentário do último commit
+#  _15_  forçar o 'push'
 
 
 
@@ -50,7 +54,11 @@
 
      # chave sem passphrase para interação com o servidor sem necessidade de entrada de senha em cada ação
      echo y | ssh-keygen -t dsa -f ~/.ssh/i-git -C $user@github.com -N ''
+
+#### IMPORTANTE ######################################
      echo "IdentityFile ~/.ssh/i-git" >> ~/.ssh/config
+######################################################
+
      sudo apt-get install git xclip
      cat ~/.ssh/i-git.pub | xclip -sel clip # copia chave pública para área de transferência
      # colar em <https://github.com/settings/ssh> com título idêntico ao comentário da chave SSH
@@ -65,9 +73,12 @@
 
      # <https://developer.github.com/v3/auth/#basic-authentication>
      # <https://github.com/settings/tokens/new>
-     # vi ~/.gittoken
-     # chmod 600 ~/.gittoken
+     vi ~/.gittoken
+     chmod 600 ~/.gittoken
+
+#### IMPORTANTE #############
      token=$(cat ~/.gittoken)
+#############################
 
 
 
@@ -281,6 +292,26 @@ time git push -u origin master
 
 
 #  _13_  deixar um diretório acessível automaticamente pelo site
+
+     git checkout -b gh-pages
+     git push origin gh-pages
+     # em <https://github.com/arkanon/fn/settings/branches>, trocar o branch default para gh-pages
+     git branch -d master
+     git push origin :master
+     git push --set-upstream origin gh-pages
+
+
+
+#  _14_  ver o comentário do último commit
+
+     git log -1
+     git log -1 --pretty=%B
+
+
+
+#  _15_  forçar o 'push'
+
+     git push origin --force
 
 
 
